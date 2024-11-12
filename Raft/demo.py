@@ -40,8 +40,9 @@ def viz(img, flo):
 
 
 def demo(args):
+    argsModel = "models/raft-kitti.pth"
     model = torch.nn.DataParallel(RAFT(args))
-    model.load_state_dict(torch.load(args.model, weights_only=True))
+    model.load_state_dict(torch.load(argsModel, weights_only=True))
 
     model = model.module
     model.to(DEVICE)
@@ -84,38 +85,6 @@ def demo(args):
             for key, indices in indices_dict.items():
                 flow_up_filtered[:, indices[:, 0], indices[:, 1]] = flow_up[0, :, indices[:, 0], indices[:, 1]] = 0
 
-            # Visualize the original image with the filtered flow
-
-            # viz(image1, flow_up_filtered.unsqueeze(0))
-            
-             
-            # Add batch dimension back for visualization
-
-
-
-
-
-# def demo(args):
-#     model = torch.nn.DataParallel(RAFT(args))
-#     model.load_state_dict(torch.load(args.model, weights_only=True))
-
-#     model = model.module
-#     model.to(DEVICE)
-#     model.eval()
-
-#     with torch.no_grad():
-#         images = glob.glob(os.path.join(args.path, '*.png')) + \
-#                  glob.glob(os.path.join(args.path, '*.jpg'))
-        
-#         images = sorted(images)
-#         for imfile1, imfile2 in zip(images[:-1], images[1:]):
-#             image1 = load_image(imfile1)
-#             image2 = load_image(imfile2)
-
-#             padder = InputPadder(image1.shape)
-#             image1, image2 = padder.pad(image1, image2)
-
-#             flow_low, flow_up = model(image1, image2, iters=20, test_mode=True)
 
 
             viz(image1, flow_up)
@@ -126,7 +95,7 @@ def demo(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', default= "models/raft-kitti.pth",help="restore checkpoint")
-    parser.add_argument('--path',  default= "demo-frames", help="dataset for evaluation")
+    parser.add_argument('--path',  default=os.path.join("..", "segmentation-result"), help="dataset for evaluation")
     parser.add_argument('--small', action='store_true', help='use small model')
     parser.add_argument('--mixed_precision', action='store_true', help='use mixed precision')
     parser.add_argument('--alternate_corr', action='store_true', help='use efficent correlation implementation')
